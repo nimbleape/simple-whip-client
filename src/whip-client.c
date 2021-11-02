@@ -54,6 +54,7 @@ static const char *audio_pipe = NULL, *video_pipe = NULL;
 static gboolean follow_link = FALSE;
 static const char *stun_server = NULL, **turn_server = NULL;
 static char *auto_stun_server = NULL, **auto_turn_server = NULL;
+static const char *policy = NULL;
 
 /* API properties */
 static enum whip_state state = 0;
@@ -125,6 +126,7 @@ static GOptionEntry opt_entries[] = {
 	{ "stun-server", 'S', 0, G_OPTION_ARG_STRING, &stun_server, "STUN server to use, if any (stun://hostname:port)", NULL },
 	{ "turn-server", 'T', 0, G_OPTION_ARG_STRING_ARRAY, &turn_server, "TURN server to use, if any; can be called multiple times (turn(s)://username:password@host:port?transport=[udp,tcp])", NULL },
 	{ "log-level", 'l', 0, G_OPTION_ARG_INT, &whip_log_level, "Logging level (0=disable logging, 7=maximum log level; default: 4)", NULL },
+	{ "ice-transport-policy", 'p', 0, G_OPTION_ARG_STRING, &policy, "Ice Transport Policy; default: all)", 'all' },
 	{ NULL },
 };
 
@@ -169,6 +171,7 @@ int main(int argc, char *argv[]) {
 	WHIP_LOG(LOG_INFO, "WHIP endpoint:  %s\n", server_url);
 	WHIP_LOG(LOG_INFO, "Bearer Token:   %s\n", token ? token : "(none)");
 	WHIP_LOG(LOG_INFO, "Auto STUN/TURN: %s\n", follow_link ? "yes (via Link headers)" : "no");
+	WHIP_LOG(LOG_INFO, "Ice Transport Policy: %s\n", policy);
 	if(!follow_link || stun_server || turn_server) {
 		if(stun_server && strstr(stun_server, "stun://") != stun_server) {
 			WHIP_LOG(LOG_WARN, "Invalid STUN address (should be stun://hostname:port)\n");
@@ -305,7 +308,7 @@ static void whip_options(void) {
 /* Helper method to initialize the GStreamer WebRTC stack */
 static gboolean whip_initialize(void) {
 	/* Prepare the pipeline, using the info we got from the command line */
-	char stun[255], turn[255], audio[1024], video[1024], gst_pipeline[2048];
+	char stun[255], turn[255], audio[1024], video[1024], gst_pipeline[2048], transportPolicy[255];
 	stun[0] = '\0';
 	turn[0] = '\0';
 	if(stun_server != NULL || auto_stun_server != NULL)
@@ -316,8 +319,11 @@ static gboolean whip_initialize(void) {
 	video[0] = '\0';
 	if(video_pipe != NULL)
 		g_snprintf(video, sizeof(video), "%s ! sendonly.", video_pipe);
-	g_snprintf(gst_pipeline, sizeof(gst_pipeline), "webrtcbin name=sendonly bundle-policy=%d %s %s %s %s",
-		(audio_pipe && video_pipe ? 3 : 0), stun, turn, video, audio);
+	transportPolicy[0] = '\0';
+	if(policy != NULL)
+		g_snprintf(transportPolicy, sizeof(transportPolicy), "ice-transport-policy=%s", policy);
+	g_snprintf(gst_pipeline, sizeof(gst_pipeline), "webrtcbin name=sendonly bundle-policy=%d %s %s %s %s %s",
+		(audio_pipe && video_pipe ? 3 : 0), transportPolicy, stun, turn, video, audio);
 	/* Launch the pipeline */
 	WHIP_LOG(LOG_INFO, WHIP_PREFIX "Initializing the GStreamer pipeline:\n%s\n", gst_pipeline);
 	GError *error = NULL;
