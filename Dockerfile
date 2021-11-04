@@ -1,4 +1,4 @@
-FROM debian:sid as ndi-builder
+FROM debian:bookworm as ndi-builder
 
 SHELL ["/bin/bash", "-c"]
 
@@ -65,7 +65,7 @@ RUN cd /tmp && \
     cargo build --release && sudo install -o root -g root -m 644 target/release/libgstndi.so /usr/lib/x86_64-linux-gnu/gstreamer-1.0/ && \
     sudo ldconfig
 
-FROM debian:sid AS builder
+FROM debian:bookworm AS builder
 
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
@@ -81,7 +81,7 @@ RUN apt-get update --allow-releaseinfo-change && \
         gstreamer1.0-plugins-bad \
         gstreamer1.0-plugins-ugly \
         gstreamer1.0-plugins-good \
-        libgstrtspserver-1.0-dev \
+        gstreamer1.0-plugins-base-apps \
         libglib2.0-dev \
         libgstreamer-plugins-bad1.0-dev \
         libsoup2.4-dev \
@@ -109,7 +109,7 @@ COPY --from=builder-rust /usr/lib/x86_64-linux-gnu/gstreamer-1.0/libgstndi.so /u
 
 WORKDIR /opt/simple-whip-client
 
-COPY * *
+COPY . .
 
 RUN make
 
