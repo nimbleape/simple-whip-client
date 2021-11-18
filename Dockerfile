@@ -62,7 +62,7 @@ RUN cd /tmp && \
     esac \
     && echo $ARCH && \
     wget -qO- https://github.com/teltek/gst-plugin-ndi/archive/master.tar.gz | tar xvz -C /tmp && cd gst-plugin-ndi-master && \
-    cargo build --release && sudo install -o root -g root -m 644 target/release/libgstndi.so /usr/lib/x86_64-linux-gnu/gstreamer-1.0/ && \
+    cargo build --release && sudo install -o root -g root -m 644 target/release/libgstndi.so /tmp && \
     sudo ldconfig
 
 FROM debian:bookworm AS builder
@@ -76,6 +76,15 @@ RUN apt-get update --allow-releaseinfo-change && \
         pkg-config \
         sudo \
         libc6-dev \
+        ffmpeg \
+        libavutil-dev \
+        libavcodec-dev \
+        libavformat-dev \
+        avahi-daemon \
+        avahi-utils \
+        libnss-mdns \
+        libavahi-common3 \
+        libavahi-client3 \
         gstreamer1.0-tools \
         gstreamer1.0-nice \
         gstreamer1.0-plugins-bad \
@@ -88,12 +97,14 @@ RUN apt-get update --allow-releaseinfo-change && \
         libjson-glib-dev \
         libgstreamer1.0-dev \
         libgstreamer-plugins-base1.0-dev \
+        gstreamer1.0-plugins-base-apps \
         gstreamer1.0-plugins-base \
         gstreamer1.0-libav && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/*
 
 COPY --from=ndi-builder /tmp/ndisdk/ /tmp/ndisdk
+
 RUN cd /tmp/ndisdk && \
     export ARCH= && export DEST= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
@@ -105,7 +116,16 @@ RUN cd /tmp/ndisdk && \
     esac \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && rm -rf /tmp/ndisdk
 
-COPY --from=builder-rust /usr/lib/x86_64-linux-gnu/gstreamer-1.0/libgstndi.so /usr/lib/x86_64-linux-gnu/gstreamer-1.0/libgstndi.so
+COPY --from=builder-rust /tmp/libgstndi.so /tmp/libgstndi.so
+
+RUN export export DEST= && dpkgArch="$(dpkg --print-architecture)" \
+    && case "${dpkgArch##*-}" in \
+      amd64) DEST='x86_64-linux-gnu';; \
+      arm64) DEST='aarch64-linux-gnu';; \
+    #   armhf) ARCH='armv7l';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac \
+    && cp /tmp/libgstndi.so /usr/lib/${DEST}/gstreamer-1.0/libgstndi.so
 
 WORKDIR /opt/simple-whip-client
 
@@ -117,6 +137,6 @@ WORKDIR /opt/simple-whip-client
 
 ENV URL=http://localhost:3000/whip/foo
 
-ENTRYPOINT ./whip-client -u $URL -A "n.audio ! audioconvert ! audioresample ! audiobuffersplit output-buffer-duration=2/50 ! queue ! opusenc ! rtpopuspay pt=100 ssrc=1 ! queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=100" -V "ndisrc ndi-name=\"Mevo-23NL5\" ! ndisrcdemux name=n n.video ! videoconvert ! vp8enc deadline=1 target-bitrate=500000 ! rtpvp8pay pt=96 ssrc=2 ! queue ! application/x-rtp,media=video,encoding-name=VP8,payload=96"
+ENTRYPOINT service dbus start && service avahi-daemon start && export GST_DEBUG=3 && ./whip-client -u $URL -A "n.audio ! audioconvert ! audioresample ! audiobuffersplit output-buffer-duration=2/50 ! queue ! opusenc ! rtpopuspay pt=100 ssrc=1 ! queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=100" -V "ndisrc ndi-name=\"Mevo-23NL5\" ! ndisrcdemux name=n n.video ! videoconvert ! vp8enc deadline=1 target-bitrate=500000 ! rtpvp8pay pt=96 ssrc=2 ! queue ! application/x-rtp,media=video,encoding-name=VP8,payload=96"
 
 # ENTRYPOINT ./whip-client -u $URL -A "audiotestsrc is-live=true wave=red-noise ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay pt=100 ssrc=1 ! queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=100" -V "videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay pt=96 ssrc=2 ! queue ! application/x-rtp,media=video,encoding-name=VP8,payload=96" -S stun://stun.l.google.com:19302
