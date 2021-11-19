@@ -27,44 +27,6 @@ RUN cd /tmp && \
     esac \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/
 
-FROM rust:1.51.0-bullseye AS builder-rust
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    sudo \
-    libgstreamer1.0-dev \
-    libgstreamer-plugins-base1.0-dev \
-    gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
-    gstreamer1.0-libav libgstrtspserver-1.0-dev
-
-COPY --from=ndi-builder /tmp/ndisdk/ /tmp/ndisdk
-
-RUN cd /tmp/ndisdk && \
-    export ARCH= && export DEST= && dpkgArch="$(dpkg --print-architecture)" \
-    && case "${dpkgArch##*-}" in \
-      amd64) ARCH='x86_64-linux-gnu' DEST='x86_64-linux-gnu';; \
-      arm64) ARCH='aarch64-newtek-linux-gnu' DEST='aarch64-linux-gnu';; \
-    #   armhf) ARCH='armv7l';; \
-      i386) ARCH='x86_64-linux-gnu' DEST='x86_64-linux-gnu';; \
-      *) echo "unsupported architecture"; exit 1 ;; \
-    esac \
-    && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && rm -rf /tmp/ndisdk
-
-RUN cd /tmp && \
-    export ARCH= && dpkgArch="$(dpkg --print-architecture)" \
-    && case "${dpkgArch##*-}" in \
-      amd64) ARCH='x86_64-linux-gnu';; \
-      arm64) ARCH='aarch64-linux-gnu';; \
-    #   armhf) ARCH='armv7l';; \
-      i386) ARCH='x86_64-linux-gnu';; \
-      *) echo "unsupported architecture"; exit 1 ;; \
-    esac \
-    && echo $ARCH && \
-    wget -qO- https://github.com/teltek/gst-plugin-ndi/archive/master.tar.gz | tar xvz -C /tmp && cd gst-plugin-ndi-master && \
-    cargo build --release && sudo install -o root -g root -m 644 target/release/libgstndi.so /tmp && \
-    sudo ldconfig
-
 FROM debian:bookworm AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
@@ -75,12 +37,14 @@ RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt
 
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
+        libx265-dev \
+        rust-all \
         vlc \
         libva-dev \
         libva-drm2 \
         vainfo \
         mesa-va-drivers \
-        intel-media-va-driver \
+        # intel-media-va-driver \
         libopenh264-dev \
         gdb \
         git \
@@ -130,16 +94,19 @@ RUN cd /tmp/ndisdk && \
     esac \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && rm -rf /tmp/ndisdk
 
-COPY --from=builder-rust /tmp/libgstndi.so /tmp/libgstndi.so
-
-RUN export export DEST= && dpkgArch="$(dpkg --print-architecture)" \
+RUN cd /tmp && \
+    export ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
-      amd64) DEST='x86_64-linux-gnu';; \
-      arm64) DEST='aarch64-linux-gnu';; \
+      amd64) ARCH='x86_64-linux-gnu';; \
+      arm64) ARCH='aarch64-linux-gnu';; \
     #   armhf) ARCH='armv7l';; \
+      i386) ARCH='x86_64-linux-gnu';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
-    && cp /tmp/libgstndi.so /usr/lib/${DEST}/gstreamer-1.0/libgstndi.so && sudo ldconfig
+    && echo $ARCH && \
+    wget -qO- https://github.com/teltek/gst-plugin-ndi/archive/master.tar.gz | tar xvz -C /tmp && cd gst-plugin-ndi-master && \
+    cargo build --release && sudo install -o root -g root -m 644 target/release/libgstndi.so /tmp && \
+    sudo ldconfig
 
 WORKDIR /opt/simple-whip-client
 
