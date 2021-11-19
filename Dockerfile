@@ -98,7 +98,7 @@ RUN cd /tmp/ndisdk && \
 RUN cd /tmp && \
     export ARCH= && export DEST= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
-      amd64) ARCH='x86_64-linux-gnu'DEST='x86_64-linux-gnu';; \
+      amd64) ARCH='x86_64-linux-gnu' DEST='x86_64-linux-gnu';; \
       arm64) ARCH='aarch64-linux-gnu' DEST='aarch64-linux-gnu';; \
     #   armhf) ARCH='armv7l';; \
       i386) ARCH='x86_64-linux-gnu';; \
