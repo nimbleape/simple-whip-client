@@ -67,8 +67,16 @@ RUN cd /tmp && \
 
 FROM debian:bookworm AS builder
 
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+
+RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt/sources.list && \
+  apt-get update -oAcquire::AllowInsecureRepositories=true \
+  && apt-get install -y --no-install-recommends --allow-unauthenticated deb-multimedia-keyring
+
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
+        vlc \
+        libopenh264-dev \
         gdb \
         git \
         build-essential \
@@ -125,7 +133,7 @@ RUN export export DEST= && dpkgArch="$(dpkg --print-architecture)" \
     #   armhf) ARCH='armv7l';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
-    && cp /tmp/libgstndi.so /usr/lib/${DEST}/gstreamer-1.0/libgstndi.so
+    && cp /tmp/libgstndi.so /usr/lib/${DEST}/gstreamer-1.0/libgstndi.so && sudo ldconfig
 
 WORKDIR /opt/simple-whip-client
 
@@ -137,6 +145,6 @@ WORKDIR /opt/simple-whip-client
 
 ENV URL=http://localhost:3000/whip/foo
 
-ENTRYPOINT service dbus start && service avahi-daemon start && export GST_DEBUG=3 && ./whip-client -u $URL -A "n.audio ! audioconvert ! audioresample ! audiobuffersplit output-buffer-duration=2/50 ! queue ! opusenc ! rtpopuspay pt=100 ssrc=1 ! queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=100" -V "ndisrc ndi-name=\"Mevo-23NL5\" ! ndisrcdemux name=n n.video ! videoconvert ! vp8enc deadline=1 target-bitrate=500000 ! rtpvp8pay pt=96 ssrc=2 ! queue ! application/x-rtp,media=video,encoding-name=VP8,payload=96"
+ENTRYPOINT service dbus start && service avahi-daemon start && export GST_DEBUG=0 && ./whip-client -u $URL -A "n.audio ! audioconvert ! audioresample ! audiobuffersplit output-buffer-duration=2/50 ! queue ! opusenc ! rtpopuspay pt=100 ssrc=1 ! queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=100" -V "ndisrc ndi-name=\"Mevo-23NL5\" ! ndisrcdemux name=n n.video ! videoconvert ! vp8enc deadline=1 target-bitrate=500000 ! rtpvp8pay pt=96 ssrc=2 ! queue ! application/x-rtp,media=video,encoding-name=VP8,payload=96"
 
 # ENTRYPOINT ./whip-client -u $URL -A "audiotestsrc is-live=true wave=red-noise ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay pt=100 ssrc=1 ! queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=100" -V "videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay pt=96 ssrc=2 ! queue ! application/x-rtp,media=video,encoding-name=VP8,payload=96" -S stun://stun.l.google.com:19302
