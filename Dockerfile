@@ -38,6 +38,7 @@ RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
         libx265-dev \
+        wget \
         rust-all \
         vlc \
         libva-dev \
@@ -95,17 +96,17 @@ RUN cd /tmp/ndisdk && \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && rm -rf /tmp/ndisdk
 
 RUN cd /tmp && \
-    export ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    export ARCH= && export DEST= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
-      amd64) ARCH='x86_64-linux-gnu';; \
-      arm64) ARCH='aarch64-linux-gnu';; \
+      amd64) ARCH='x86_64-linux-gnu'DEST='x86_64-linux-gnu';; \
+      arm64) ARCH='aarch64-linux-gnu' DEST='aarch64-linux-gnu';; \
     #   armhf) ARCH='armv7l';; \
       i386) ARCH='x86_64-linux-gnu';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
-    && echo $ARCH && \
+    && echo $ARCH && echo $DEST && \
     wget -qO- https://github.com/teltek/gst-plugin-ndi/archive/master.tar.gz | tar xvz -C /tmp && cd gst-plugin-ndi-master && \
-    cargo build --release && sudo install -o root -g root -m 644 target/release/libgstndi.so /tmp && \
+    cargo build --release && sudo install -o root -g root -m 644 target/release/libgstndi.so /usr/lib/${DEST}/gstreamer-1.0/libgstndi.so && \
     sudo ldconfig
 
 WORKDIR /opt/simple-whip-client
