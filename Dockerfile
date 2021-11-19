@@ -76,6 +76,11 @@ RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
         vlc \
+        libva-dev \
+        libva-drm2 \
+        vainfo \
+        mesa-va-drivers \
+        intel-media-va-driver \
         libopenh264-dev \
         gdb \
         git \
@@ -93,6 +98,7 @@ RUN apt-get update --allow-releaseinfo-change && \
         libnss-mdns \
         libavahi-common3 \
         libavahi-client3 \
+        gstreamer1.0-vaapi \
         gstreamer1.0-tools \
         gstreamer1.0-nice \
         gstreamer1.0-plugins-bad \
