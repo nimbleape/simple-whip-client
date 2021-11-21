@@ -39,7 +39,8 @@ RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
         libnuma-dev \
         libx265-dev \
-        libx264-dev \
+        x264 \
+        x265 \
         wget \
         rust-all \
         vlc \
