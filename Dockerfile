@@ -37,7 +37,9 @@ RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt
 
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
+        libnuma-dev \
         libx265-dev \
+        libx264-dev \
         wget \
         rust-all \
         vlc \
@@ -45,7 +47,7 @@ RUN apt-get update --allow-releaseinfo-change && \
         libva-drm2 \
         vainfo \
         mesa-va-drivers \
-        # intel-media-va-driver \
+        intel-media-va-driver \
         libopenh264-dev \
         gdb \
         git \
