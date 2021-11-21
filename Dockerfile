@@ -37,6 +37,48 @@ RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt
 
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
+        linux-perf \
+        linux-base \
+        vim \
+        openssh-server \
+        libva-dev \
+        libva-drm2 \
+        vainfo \
+        mesa-va-drivers \
+        intel-media-va-driver \
+        wget \
+        ca-certificates \
+        libmicrohttpd12 \
+        libjansson4 \
+        libssl1.1 \
+        libglib2.0-0 \
+        libopus0 \
+        libogg0 \
+        libcurl4 \
+        liblua5.3-0 \
+        libconfig9 \
+        libusrsctp1 \
+        libnanomsg5 \
+        avahi-daemon \
+        avahi-utils \
+        libnss-mdns \
+        libavahi-common3 \
+        libavahi-client3 \
+        iproute2 \
+        libgstreamer1.0-0 \
+        gstreamer1.0-vaapi \
+        gstreamer1.0-plugins-base \
+        gstreamer1.0-plugins-good \
+        gstreamer1.0-plugins-bad \
+        gstreamer1.0-plugins-ugly \
+        gstreamer1.0-libav \
+        gstreamer1.0-tools \
+        gstreamer1.0-x \
+        gstreamer1.0-alsa \
+        gstreamer1.0-gl \
+        gstreamer1.0-gtk3 \
+        gstreamer1.0-qt5 \
+        gstreamer1.0-pulseaudio \
         libnuma-dev \
         libx265-dev \
         x264 \
