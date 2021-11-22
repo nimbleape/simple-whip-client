@@ -71,6 +71,13 @@ RUN apt-get update --allow-releaseinfo-change && \
         libavutil-dev \
         libavcodec-dev \
         libavformat-dev \
+        libavutil \
+        libavcodec \
+        libavformat \
+        libavdevice \
+        libavfilter \
+        libswscale \
+        libswresample
         avahi-daemon \
         avahi-utils \
         libnss-mdns \
