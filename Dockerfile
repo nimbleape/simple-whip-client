@@ -37,9 +37,9 @@ FROM debian:bookworm AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 
-RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt/sources.list && \
-  apt-get update -oAcquire::AllowInsecureRepositories=true \
-  && apt-get install -y --no-install-recommends --allow-unauthenticated deb-multimedia-keyring
+# RUN echo "deb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt/sources.list && \
+#   apt-get update -oAcquire::AllowInsecureRepositories=true \
+#   && apt-get install -y --no-install-recommends --allow-unauthenticated deb-multimedia-keyring
 
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
@@ -54,9 +54,9 @@ RUN apt-get update --allow-releaseinfo-change && \
         libva-drm2 \
         vainfo \
         mesa-va-drivers \
-        intel-media-va-driver \
-        libopenh264-dev \
-        libopenh264-6 \
+        # intel-media-va-driver \
+        # libopenh264-dev \
+        # libopenh264-6 \
         # libx264-164 \
         # libx264-dev \
         # libx265-199 \
@@ -72,13 +72,11 @@ RUN apt-get update --allow-releaseinfo-change && \
         libavutil-dev \
         libavcodec-dev \
         libavformat-dev \
-        libavutil \
-        libavcodec \
-        libavformat \
-        libavdevice \
-        libavfilter \
-        libswscale \
-        libswresample \
+        libavutil-dev \
+        libavdevice-dev \
+        libavfilter-dev \
+        libswscale-dev \
+        libswresample-dev \
         avahi-daemon \
         avahi-utils \
         libnss-mdns \
