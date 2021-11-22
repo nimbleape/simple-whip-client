@@ -56,10 +56,10 @@ RUN apt-get update --allow-releaseinfo-change && \
         intel-media-va-driver \
         libopenh264-dev \
         libopenh264-6 \
-        libx264-164 \
-        libx264-dev \
-        libx265-199 \
-        libavcodec-extra \
+        # libx264-164 \
+        # libx264-dev \
+        # libx265-199 \
+        # libavcodec-extra \
         gdb \
         git \
         build-essential \
