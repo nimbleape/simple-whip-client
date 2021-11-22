@@ -14,12 +14,12 @@ RUN apt-get update && \
 RUN cd /tmp && \
     wget -qO- https://downloads.ndi.tv/SDK/NDI_SDK_Linux/Install_NDI_Advanced_SDK_v5_Linux.tar.gz | tar xvz -C /tmp \
     && chmod +x /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh \
-    # && wget -qO- https://wr1apq.dm.files.1drv.com/y4mA7JaHY2idN_qptWJCLehp7nqS037IqjRod_gLCp22lMFlEx5jn3mXseoDgGHZ3MNGLjUFC00fzMlVU3VdLvZfcKh8Di5OMx9H5hVZEayGIXpn0jxhTJtaTyaXKc_vH8KFkkPdEEO17DwFB_jCuMfKgQIudx6HBud2sOpz25BSysBhUlrSw7h1scf2m-D9YFrhhF6gNsyTMmVS4aiIw9bNw | tar xvz -C /tmp \
-    # && chmod +x /tmp/NDIHXDriverForLinux.sh \
+    && wget -qO- https://wr1apq.dm.files.1drv.com/y4mA7JaHY2idN_qptWJCLehp7nqS037IqjRod_gLCp22lMFlEx5jn3mXseoDgGHZ3MNGLjUFC00fzMlVU3VdLvZfcKh8Di5OMx9H5hVZEayGIXpn0jxhTJtaTyaXKc_vH8KFkkPdEEO17DwFB_jCuMfKgQIudx6HBud2sOpz25BSysBhUlrSw7h1scf2m-D9YFrhhF6gNsyTMmVS4aiIw9bNw | tar xvz -C /tmp \
+    && chmod +x /tmp/NDIHXDriverForLinux.sh \
     && PAGER=none /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh <<< "Y" \
     && mv /tmp/NDI\ Advanced\ SDK\ for\ Linux /tmp/ndisdk \
-    # && PAGER=none /tmp/NDIHXDriverForLinux.sh <<< "Y" \
-    # && mv /tmp/NDIHXDriverForLinux /tmp/ndihxsdk \
+    && PAGER=none /tmp/NDIHXDriverForLinux.sh <<< "Y" \
+    && mv /tmp/NDIHXDriverForLinux /tmp/ndihxsdk \
     && cd /tmp/ndisdk && \
     export ARCH= && export DEST= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
@@ -30,7 +30,7 @@ RUN cd /tmp && \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && \
-    # cp /tmp/ndihxsdk/x86_64-linux-gnu/* /tmp/ndisdk/lib/x86_64-linux-gnu/
+    cp /tmp/ndihxsdk/x86_64-linux-gnu/* /tmp/ndisdk/lib/x86_64-linux-gnu/ && \
     echo "done with ndi"
 
 FROM debian:bookworm AS builder
@@ -54,6 +54,7 @@ RUN apt-get update --allow-releaseinfo-change && \
         libva-drm2 \
         vainfo \
         mesa-va-drivers \
+        strace \
         # intel-media-va-driver \
         # libopenh264-dev \
         # libopenh264-6 \
