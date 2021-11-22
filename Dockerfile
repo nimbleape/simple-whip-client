@@ -77,7 +77,7 @@ RUN apt-get update --allow-releaseinfo-change && \
         libavdevice \
         libavfilter \
         libswscale \
-        libswresample
+        libswresample \
         avahi-daemon \
         avahi-utils \
         libnss-mdns \
