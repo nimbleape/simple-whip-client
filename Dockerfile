@@ -113,7 +113,9 @@ RUN cd /tmp/ndisdk && \
       i386) ARCH='x86_64-linux-gnu';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
-    && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && rm -rf /tmp/ndisdk
+    && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ \
+    # && rm -rf /tmp/ndisdk \
+    && echo "done moving ndi"
 
 RUN cd /tmp && \
     export ARCH= && export DEST= && dpkgArch="$(dpkg --print-architecture)" \
