@@ -11,10 +11,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+COPY Install_NDI_Advanced_SDK_v5_Linux.sh /tmp
+COPY NDIHXDriverForLinux.sh /tmp
+
 RUN cd /tmp && \
-    wget -qO- https://downloads.ndi.tv/SDK/NDI_SDK_Linux/Install_NDI_Advanced_SDK_v5_Linux.tar.gz | tar xvz -C /tmp \
+    # wget -qO- https://downloads.ndi.tv/SDK/NDI_SDK_Linux/Install_NDI_Advanced_SDK_v5_Linux.tar.gz | tar xvz -C /tmp \
     && chmod +x /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh \
-    && wget -qO- https://wr1apq.dm.files.1drv.com/y4mA7JaHY2idN_qptWJCLehp7nqS037IqjRod_gLCp22lMFlEx5jn3mXseoDgGHZ3MNGLjUFC00fzMlVU3VdLvZfcKh8Di5OMx9H5hVZEayGIXpn0jxhTJtaTyaXKc_vH8KFkkPdEEO17DwFB_jCuMfKgQIudx6HBud2sOpz25BSysBhUlrSw7h1scf2m-D9YFrhhF6gNsyTMmVS4aiIw9bNw | tar xvz -C /tmp \
+    # && wget -qO- https://wr1apq.dm.files.1drv.com/y4mA7JaHY2idN_qptWJCLehp7nqS037IqjRod_gLCp22lMFlEx5jn3mXseoDgGHZ3MNGLjUFC00fzMlVU3VdLvZfcKh8Di5OMx9H5hVZEayGIXpn0jxhTJtaTyaXKc_vH8KFkkPdEEO17DwFB_jCuMfKgQIudx6HBud2sOpz25BSysBhUlrSw7h1scf2m-D9YFrhhF6gNsyTMmVS4aiIw9bNw | tar xvz -C /tmp \
     && chmod +x /tmp/NDIHXDriverForLinux.sh \
     && PAGER=none /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh <<< "Y" \
     && mv /tmp/NDI\ Advanced\ SDK\ for\ Linux /tmp/ndisdk \
@@ -32,6 +35,28 @@ RUN cd /tmp && \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && \
     cp /tmp/ndihxsdk/x86_64-linux-gnu/* /tmp/ndisdk/lib/x86_64-linux-gnu/ && \
     echo "done with ndi"
+
+# RUN cd /tmp && \
+#     wget -qO- https://downloads.ndi.tv/SDK/NDI_SDK_Linux/Install_NDI_Advanced_SDK_v5_Linux.tar.gz | tar xvz -C /tmp \
+#     && chmod +x /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh \
+#     && wget -qO- https://wr1apq.dm.files.1drv.com/y4mA7JaHY2idN_qptWJCLehp7nqS037IqjRod_gLCp22lMFlEx5jn3mXseoDgGHZ3MNGLjUFC00fzMlVU3VdLvZfcKh8Di5OMx9H5hVZEayGIXpn0jxhTJtaTyaXKc_vH8KFkkPdEEO17DwFB_jCuMfKgQIudx6HBud2sOpz25BSysBhUlrSw7h1scf2m-D9YFrhhF6gNsyTMmVS4aiIw9bNw | tar xvz -C /tmp \
+#     && chmod +x /tmp/NDIHXDriverForLinux.sh \
+#     && PAGER=none /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh <<< "Y" \
+#     && mv /tmp/NDI\ Advanced\ SDK\ for\ Linux /tmp/ndisdk \
+#     && PAGER=none /tmp/NDIHXDriverForLinux.sh <<< "Y" \
+#     && mv /tmp/NDIHXDriverForLinux /tmp/ndihxsdk \
+#     && cd /tmp/ndisdk && \
+#     export ARCH= && export DEST= && dpkgArch="$(dpkg --print-architecture)" \
+#     && case "${dpkgArch##*-}" in \
+#       amd64) ARCH='x86_64-linux-gnu' DEST='x86_64-linux-gnu';; \
+#       arm64) ARCH='aarch64-newtek-linux-gnu' DEST='aarch64-linux-gnu';; \
+#     #   armhf) ARCH='armv7l';; \
+#       i386) ARCH='x86_64-linux-gnu' DEST='x86_64-linux-gnu';; \
+#       *) echo "unsupported architecture"; exit 1 ;; \
+#     esac \
+#     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ && \
+#     cp /tmp/ndihxsdk/x86_64-linux-gnu/* /tmp/ndisdk/lib/x86_64-linux-gnu/ && \
+#     echo "done with ndi"
 
 FROM debian:bookworm AS builder
 
@@ -109,12 +134,10 @@ RUN cd /tmp/ndisdk && \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='x86_64-linux-gnu' DEST='x86_64-linux-gnu';; \
       arm64) ARCH='aarch64-newtek-linux-gnu' DEST='aarch64-linux-gnu';; \
-    #   armhf) ARCH='armv7l';; \
       i386) ARCH='x86_64-linux-gnu';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ \
-    # && rm -rf /tmp/ndisdk \
     && echo "done moving ndi"
 
 RUN cd /tmp && \
