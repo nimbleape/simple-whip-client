@@ -11,16 +11,16 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY Install_NDI_Advanced_SDK_v5_Linux.sh /tmp
+COPY Install_NDI_SDK_v5_Linux.sh /tmp
 COPY NDIHXDriverForLinux.sh /tmp
 
-RUN cd /tmp && \
-    # wget -qO- https://downloads.ndi.tv/SDK/NDI_SDK_Linux/Install_NDI_Advanced_SDK_v5_Linux.tar.gz | tar xvz -C /tmp \
-    && chmod +x /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh \
+RUN cd /tmp \
+    # && wget -qO- https://downloads.ndi.tv/SDK/NDI_SDK_Linux/Install_NDI_Advanced_SDK_v5_Linux.tar.gz | tar xvz -C /tmp \
+    && chmod +x /tmp/Install_NDI_SDK_v5_Linux.sh \
     # && wget -qO- https://wr1apq.dm.files.1drv.com/y4mA7JaHY2idN_qptWJCLehp7nqS037IqjRod_gLCp22lMFlEx5jn3mXseoDgGHZ3MNGLjUFC00fzMlVU3VdLvZfcKh8Di5OMx9H5hVZEayGIXpn0jxhTJtaTyaXKc_vH8KFkkPdEEO17DwFB_jCuMfKgQIudx6HBud2sOpz25BSysBhUlrSw7h1scf2m-D9YFrhhF6gNsyTMmVS4aiIw9bNw | tar xvz -C /tmp \
     && chmod +x /tmp/NDIHXDriverForLinux.sh \
-    && PAGER=none /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh <<< "Y" \
-    && mv /tmp/NDI\ Advanced\ SDK\ for\ Linux /tmp/ndisdk \
+    && PAGER=none /tmp/Install_NDI_SDK_v5_Linux.sh <<< "Y" \
+    && mv /tmp/NDI\ SDK\ for\ Linux /tmp/ndisdk \
     && PAGER=none /tmp/NDIHXDriverForLinux.sh <<< "Y" \
     && mv /tmp/NDIHXDriverForLinux /tmp/ndihxsdk \
     && cd /tmp/ndisdk && \
