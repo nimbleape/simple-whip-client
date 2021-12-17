@@ -18,7 +18,7 @@ RUN cd /tmp \
       arm64) ARCH='aarch64-newtek-linux-gnu' DEST='aarch64-linux-gnu' HX_SCRIPT='NDIHXDriverForLinuxARM';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
-    && wget -qO- https://downloads.ndi.tv/SDK/NDI_SDK_Linux/Install_NDI_Advanced_SDK_v5_Linux.tar.gz | tar xvz -C /tmp \
+    && wget -qO- https://aib2da.dm.files.1drv.com/y4mNMVLPR6kiLPDThN01e4X8ZuVI1to6SVC1QpfcYZ9QeJOQPiicE7YUOl9ElmzCt5mU4Fs3zEu5Ewvievtdio2TpES8DRX2dMJOu-jjd8FRL3LX_N_Z_zL3_0n660YVBUGqlR7LhmKXEO8yecu74BJWaH56V2XHr21udUcRyZQyCw2QzkDJ8qcINRUhrhUYdSXDqi6-6QOo_7bokITQmRrUw | tar xvz -C /tmp \
     && wget -qO- https://wr1apq.dm.files.1drv.com/y4mA7JaHY2idN_qptWJCLehp7nqS037IqjRod_gLCp22lMFlEx5jn3mXseoDgGHZ3MNGLjUFC00fzMlVU3VdLvZfcKh8Di5OMx9H5hVZEayGIXpn0jxhTJtaTyaXKc_vH8KFkkPdEEO17DwFB_jCuMfKgQIudx6HBud2sOpz25BSysBhUlrSw7h1scf2m-D9YFrhhF6gNsyTMmVS4aiIw9bNw | tar xvz -C /tmp \
     && wget -qO- https://wh1apq.dm.files.1drv.com/y4mjjuDRKi9d7y6tEbIUC8PTi8gKaIRQCPCj4i-ORAKPWrSpnUWQgWp_yjl_fU9bfuGNo8qeSQ6EAJQOOqo3wml-l_ltQk2A9xEXG7cEBC93xjMuz-to4rqKcq-WLhUrn2dlA4giTW-4bTfQ5OJ44A2Xs1hy-x4pDEeeYnbqGgkmu5wIS70MDV10zHhxiAh6Yzf3Zzr1l0JOKrZ6n69xOUwuA | tar xvz -C /tmp \
     && chmod +x /tmp/Install_NDI_Advanced_SDK_v5_Linux.sh \
@@ -209,7 +209,10 @@ RUN cd /tmp/ndisdk && \
     esac \
     && cp /tmp/ndisdk/lib/${ARCH}/* /usr/lib/${DEST}/ \
     && cp /tmp/libgstndi.so /usr/lib/${DEST}/gstreamer-1.0/libgstndi.so \
-    && ldconfig && rm -rf /tmp/ndisdk && echo "done moving ndi"
+    && ldconfig \
+    && cp /tmp/ndisdk/Version.txt /tmp/ndisdk/NDIVersion.txt \
+    && rm -rf /tmp/ndisdk \
+    && echo "done moving ndi"
 
 WORKDIR /opt/simple-whip-client
 
