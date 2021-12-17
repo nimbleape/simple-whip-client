@@ -192,7 +192,8 @@ RUN apt-get update --allow-releaseinfo-change && \
         libgstreamer-plugins-base1.0-dev \
         gstreamer1.0-plugins-base-apps \
         gstreamer1.0-plugins-base \
-        gstreamer1.0-libav && \
+        gstreamer1.0-libav \
+        timelimit && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/*
 
